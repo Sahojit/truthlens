@@ -9,6 +9,13 @@ from fastapi.middleware.gzip import GZipMiddleware
 from contextlib import asynccontextmanager
 from loguru import logger
 import os
+import nltk
+
+for _pkg in ["punkt", "punkt_tab", "stopwords", "wordnet", "averaged_perceptron_tagger"]:
+    try:
+        nltk.download(_pkg, quiet=True)
+    except Exception:
+        pass
 
 from app.database.connection import connect_db, disconnect_db
 from app.routes import predict, auth, analytics, sources, graphs, metrics, history
