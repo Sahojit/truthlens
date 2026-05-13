@@ -1,0 +1,37 @@
+# ============================================================
+# Deployment requirements — lightweight (no PyTorch/TF)
+# ML models fall back to heuristic scoring gracefully.
+# To enable full BERT/BiLSTM: switch to requirements.txt
+# ============================================================
+
+# --- Web Framework ---
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pydantic==2.7.1
+pydantic-settings==2.2.1
+httpx==0.27.0
+
+# --- Database ---
+motor==3.4.0
+pymongo==4.7.2
+
+# --- NLP Core (lightweight) ---
+scikit-learn==1.5.0
+xgboost==2.1.0
+nltk==3.8.1
+textblob==0.18.0
+spacy==3.7.4
+networkx==3.3
+
+# --- Utilities ---
+loguru==0.7.2
+python-dotenv==1.0.1
+numpy==1.26.4
+scipy==1.13.0
+joblib==1.4.2
+
+# --- Rate limiting ---
+slowapi==0.1.9

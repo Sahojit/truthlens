@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.env
+*.egg-info/
+
+# Models (large binaries — don't commit to git)
+backend/trained_models/
+*.h5
+*.pkl
+*.pt
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Datasets (too large for git)
+datasets/*.csv
+datasets/*.json
+
+# Logs
+*.log
+logs/

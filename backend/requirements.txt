@@ -1,0 +1,68 @@
+# ============================================================
+# Backend Python Dependencies
+# ============================================================
+
+# --- Web Framework ---
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pydantic==2.7.1
+pydantic-settings==2.2.1
+httpx==0.27.0
+
+# --- Database ---
+motor==3.4.0
+pymongo==4.7.2
+beanie==1.25.0
+
+# --- NLP Core ---
+transformers==4.41.0
+sentence-transformers==2.7.0
+torch==2.3.0
+torchvision==0.18.0
+tensorflow==2.16.1
+keras==3.3.3
+
+# --- Classical ML ---
+scikit-learn==1.4.2
+xgboost==2.0.3
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.0
+
+# --- NLP Utilities ---
+spacy==3.7.4
+nltk==3.8.1
+textblob==0.18.0
+contractions==0.1.73
+langdetect==1.0.9
+
+# --- Explainability ---
+shap==0.45.1
+lime==0.2.0.1
+
+# --- Data Balancing ---
+imbalanced-learn==0.12.2
+
+# --- Graph Analysis ---
+networkx==3.3
+
+# --- Visualization (backend charts) ---
+matplotlib==3.9.0
+seaborn==0.13.2
+plotly==5.22.0
+
+# --- Utilities ---
+python-dotenv==1.0.1
+loguru==0.7.2
+tqdm==4.66.4
+joblib==1.4.2
+aiofiles==23.2.1
+Pillow==10.3.0
+
+# --- Testing ---
+pytest==8.2.1
+pytest-asyncio==0.23.7
+httpx==0.27.0
