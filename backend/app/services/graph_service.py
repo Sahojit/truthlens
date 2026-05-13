@@ -49,11 +49,54 @@ class GraphAnalysisService:
         return entities[:50]  # cap
 
     def _regex_entities(self, text: str) -> List[Tuple[str, str]]:
-        """Simple proper noun extraction as fallback."""
-        words = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", text)
-        counts = Counter(words)
-        # Keep entities mentioned more than once
-        return [(w, "MISC") for w, c in counts.most_common(30) if c > 1]
+        """Regex-based NER fallback — no spaCy required."""
+        # Common words that are capitalised but are not entities
+        SKIP = {
+            "The","A","An","In","On","At","By","For","Of","To","And","But","Or",
+            "Its","It","He","She","They","We","You","This","That","These","Those",
+            "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday",
+            "January","February","March","April","May","June","July","August",
+            "September","October","November","December","Reuters","AP","said",
+            "According","However","Meanwhile","Although","Despite","When","After",
+            "Before","During","Since","Breaking","Share","Read","Watch","Click",
+        }
+
+        # Known org/location keywords to help classify
+        ORG_HINTS  = {"Inc","Corp","Ltd","LLC","Co","Bank","Fund","Agency","Institute",
+                      "University","College","Department","Ministry","Committee","Council",
+                      "Association","Foundation","Organization","Group","Party","Union"}
+        GPE_HINTS  = {"City","State","County","Republic","Kingdom","Province","District",
+                      "Washington","London","Moscow","Beijing","Paris","Berlin","Tokyo",
+                      "New York","Los Angeles","Chicago","United States","European Union"}
+
+        # Extract capitalised proper noun phrases (1–4 words)
+        pattern = r"\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3})\b"
+        candidates = re.findall(pattern, text)
+        counts = Counter()
+        for c in candidates:
+            first = c.split()[0]
+            if first not in SKIP and len(c) > 2:
+                counts[c] += 1
+
+        # Classify and collect — include even single-mention entities
+        entities = []
+        seen = set()
+        for phrase, _ in counts.most_common(40):
+            if phrase in seen:
+                continue
+            seen.add(phrase)
+            words = phrase.split()
+            if any(w in ORG_HINTS for w in words):
+                label = "ORG"
+            elif phrase in GPE_HINTS or any(w in GPE_HINTS for w in words):
+                label = "GPE"
+            elif len(words) >= 2 and all(w[0].isupper() for w in words):
+                label = "PERSON"
+            else:
+                label = "MISC"
+            entities.append((phrase, label))
+
+        return entities[:35]
 
     # ── Graph Construction ────────────────────────────────────
     def _build_graph(
