@@ -9,11 +9,10 @@ env/
 .env
 *.egg-info/
 
-# Models (large binaries — don't commit to git)
-backend/trained_models/
+# Models — large deep learning models excluded, but small pkl files committed
 *.h5
-*.pkl
 *.pt
+# backend/trained_models/ — pkl files are small (~3MB total), commit them
 
 # Node
 node_modules/

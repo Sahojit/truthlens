@@ -90,8 +90,8 @@ class EnsembleService:
             cleaned = TextPreprocessor.full_pipeline(text)
             X = self.loader.tfidf_vectorizer.transform([cleaned])
             prob = self.loader.logistic_model.predict_proba(X)[0]
-            # prob[1] = FAKE probability (class ordering: REAL=0, FAKE=1)
-            return float(prob[1])
+            # LabelEncoder sorts alphabetically: FAKE=0, REAL=1 → prob[0] = P(FAKE)
+            return float(prob[0])
         except Exception as e:
             logger.warning(f"Logistic prediction failed: {e}")
             return self._heuristic_score(text)
@@ -106,7 +106,8 @@ class EnsembleService:
             if self.loader.tfidf_vectorizer:
                 X = self.loader.tfidf_vectorizer.transform([cleaned])
                 prob = self.loader.xgboost_model.predict_proba(X)[0]
-                return float(prob[1])
+                # LabelEncoder: FAKE=0, REAL=1 → prob[0] = P(FAKE)
+                return float(prob[0])
             return None
         except Exception as e:
             logger.warning(f"XGBoost prediction failed: {e}")
