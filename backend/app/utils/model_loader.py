@@ -37,33 +37,40 @@ class ModelLoader:
         """Synchronous model loading — called from thread pool."""
         logger.info("Loading ML models…")
 
-        # ── Sentence-BERT ─────────────────────────────────────
-        try:
-            from sentence_transformers import SentenceTransformer, CrossEncoder
-            sbert_name = os.getenv("SBERT_MODEL", "all-MiniLM-L6-v2")
-            logger.info(f"Loading SBERT: {sbert_name}")
-            self.sbert_model = SentenceTransformer(sbert_name)
-            nli_name = os.getenv("NLI_MODEL", "cross-encoder/nli-deberta-v3-base")
-            logger.info(f"Loading NLI model: {nli_name}")
-            self.nli_model = CrossEncoder(nli_name)
-        except Exception as e:
-            logger.warning(f"SBERT/NLI load failed (will use fallback): {e}")
+        # ── Heavy transformer models — skipped on free tier (512MB RAM limit) ──
+        # SBERT (90MB) + NLI/DeBERTa (800MB) + Emotion/DistilRoBERTa (300MB)
+        # = ~1.2GB total → crashes Render free tier.
+        # All three services have lexicon/heuristic fallbacks that activate
+        # automatically when these are None.
+        # To enable on a paid tier (≥2GB RAM), set env var LOAD_TRANSFORMERS=true
+        if os.getenv("LOAD_TRANSFORMERS", "false").lower() == "true":
+            try:
+                from sentence_transformers import SentenceTransformer, CrossEncoder
+                sbert_name = os.getenv("SBERT_MODEL", "all-MiniLM-L6-v2")
+                logger.info(f"Loading SBERT: {sbert_name}")
+                self.sbert_model = SentenceTransformer(sbert_name)
+                nli_name = os.getenv("NLI_MODEL", "cross-encoder/nli-deberta-v3-base")
+                logger.info(f"Loading NLI model: {nli_name}")
+                self.nli_model = CrossEncoder(nli_name)
+            except Exception as e:
+                logger.warning(f"SBERT/NLI load failed (will use fallback): {e}")
 
-        # ── Emotion Classifier ────────────────────────────────
-        try:
-            from transformers import pipeline
-            logger.info("Loading emotion classifier…")
-            self.emotion_classifier = pipeline(
-                "text-classification",
-                model="j-hartmann/emotion-english-distilroberta-base",
-                return_all_scores=True,
-                truncation=True,
-                max_length=512,
-            )
-        except Exception as e:
-            logger.warning(f"Emotion classifier load failed (will use fallback): {e}")
+            try:
+                from transformers import pipeline
+                logger.info("Loading emotion classifier…")
+                self.emotion_classifier = pipeline(
+                    "text-classification",
+                    model="j-hartmann/emotion-english-distilroberta-base",
+                    return_all_scores=True,
+                    truncation=True,
+                    max_length=512,
+                )
+            except Exception as e:
+                logger.warning(f"Emotion classifier load failed (will use fallback): {e}")
+        else:
+            logger.info("Transformer models skipped (LOAD_TRANSFORMERS != true) — using fallbacks.")
 
-        # ── Classical models (only if saved files exist) ──────
+        # ── Classical models (pkl — ~2.5MB total, always load) ────────────────
         self._try_load_pkl("tfidf_vectorizer", "tfidf_vectorizer.pkl")
         self._try_load_pkl("logistic_model",   "logistic_model.pkl")
         self._try_load_pkl("xgboost_model",    "xgboost_model.pkl")
