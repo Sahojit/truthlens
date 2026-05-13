@@ -106,11 +106,11 @@ async def model_accuracy():
 
 # ── Mock data (when DB is unavailable / empty) ────────────────
 def _mock_summary():
-    # Real ISOT dataset statistics (44,898 articles)
+    # 50% sample of ISOT dataset used for training (22,403 articles)
     return {
-        "total_predictions": 44898,
-        "fake_count": 23481,
-        "real_count": 21417,
+        "total_predictions": 22403,
+        "fake_count": 11712,
+        "real_count": 10691,
         "fake_percentage": 52.3,
         "avg_confidence": 0.9871,
         "avg_emotion_score": 0.58,

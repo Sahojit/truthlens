@@ -43,7 +43,7 @@ export default function Dashboard() {
           <LayoutDashboard className="w-6 h-6 text-primary" />
           <h1 className="text-2xl font-display font-bold">Analytics Dashboard</h1>
         </div>
-        <p className="text-xs text-slate-400 mt-1 ml-8">ISOT Fake News Dataset — 44,898 articles used for model training</p>
+        <p className="text-xs text-slate-400 mt-1 ml-8">ISOT Fake News Dataset — 22,403 articles used for model training</p>
       </div>
 
       {/* Metric Cards */}
