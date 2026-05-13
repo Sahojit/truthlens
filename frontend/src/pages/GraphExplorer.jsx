@@ -59,8 +59,9 @@ function runForce(nodes, edges, W, H, steps = 220) {
       vel[id].y += (H / 2 - pos[id].y) * GRAV
       vel[id].x *= DAMP;  vel[id].y *= DAMP
       const r = nodeR(nodes.find(n => n.id === id))
-      pos[id].x = Math.max(r + 40, Math.min(W - r - 40, pos[id].x + vel[id].x))
-      pos[id].y = Math.max(r + 30, Math.min(H - r - 30, pos[id].y + vel[id].y))
+      // extra bottom/side margin so labels (drawn below node) never clip
+      pos[id].x = Math.max(r + 72, Math.min(W - r - 72, pos[id].x + vel[id].x))
+      pos[id].y = Math.max(r + 28, Math.min(H - r - 52, pos[id].y + vel[id].y))
     })
   }
   return pos
@@ -92,7 +93,7 @@ function GraphCanvas({ nodes = [], edges = [] }) {
   )
 
   return (
-    <svg ref={svgRef} className="w-full h-full" style={{ minHeight: 500 }}>
+    <svg ref={svgRef} className="w-full" style={{ height: 540, display: 'block' }}>
       <defs>
         {Object.entries(TYPE_COLORS).map(([type, color]) => (
           <radialGradient key={type} id={`glow-${type}`} cx="50%" cy="50%" r="50%">
@@ -229,7 +230,7 @@ export default function GraphExplorer() {
         <div className="section-sub mb-4">
           Nodes: people, organisations, locations · Edges: co-occurrence in sentences
         </div>
-        <div className="h-[540px] bg-dark-800/60 rounded-xl overflow-hidden">
+        <div className="h-[540px] bg-dark-800/60 rounded-xl overflow-visible">
           <GraphCanvas nodes={graph.nodes} edges={graph.edges} />
         </div>
 
