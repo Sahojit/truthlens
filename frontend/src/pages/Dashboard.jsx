@@ -28,19 +28,22 @@ export default function Dashboard() {
   }, [])
 
   const metrics = summary ? [
-    { label: 'Total Analysed',    value: summary.total_predictions, icon: Brain,         color: 'text-primary'  },
-    { label: 'Fake Detected',     value: summary.fake_count,        icon: AlertTriangle,  color: 'text-danger'   },
-    { label: 'Real Articles',     value: summary.real_count,        icon: Shield,         color: 'text-success'  },
-    { label: 'Fake Rate',         value: `${summary.fake_percentage}%`, icon: TrendingUp, color: 'text-warning'  },
-    { label: 'Avg Confidence',    value: `${(summary.avg_confidence * 100).toFixed(1)}%`, icon: Zap, color: 'text-accent' },
+    { label: 'Training Dataset',  value: summary.total_predictions.toLocaleString(), icon: Brain,         color: 'text-primary'  },
+    { label: 'Fake Articles',     value: summary.fake_count.toLocaleString(),        icon: AlertTriangle,  color: 'text-danger'   },
+    { label: 'Real Articles',     value: summary.real_count.toLocaleString(),        icon: Shield,         color: 'text-success'  },
+    { label: 'Fake Rate',         value: `${summary.fake_percentage}%`,              icon: TrendingUp,     color: 'text-warning'  },
+    { label: 'Model Accuracy',    value: `${(summary.avg_confidence * 100).toFixed(1)}%`, icon: Zap,      color: 'text-accent'   },
     { label: 'Avg Emotion Score', value: `${(summary.avg_emotion_score * 100).toFixed(1)}%`, icon: Brain, color: 'text-purple-400' },
   ] : []
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-2">
-        <LayoutDashboard className="w-6 h-6 text-primary" />
-        <h1 className="text-2xl font-display font-bold">Analytics Dashboard</h1>
+      <div>
+        <div className="flex items-center gap-2">
+          <LayoutDashboard className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-display font-bold">Analytics Dashboard</h1>
+        </div>
+        <p className="text-xs text-slate-400 mt-1 ml-8">ISOT Fake News Dataset — 44,898 articles used for model training</p>
       </div>
 
       {/* Metric Cards */}

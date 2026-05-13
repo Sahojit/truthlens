@@ -47,19 +47,22 @@ export default function Analytics() {
       }
 
       {summary && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: 'Total Predictions', value: summary.total_predictions,        color: 'text-primary' },
-            { label: 'Fake Articles',     value: summary.fake_count,               color: 'text-danger'  },
-            { label: 'Fake Rate',         value: `${summary.fake_percentage}%`,    color: 'text-warning' },
-            { label: 'Avg Confidence',    value: `${(summary.avg_confidence*100).toFixed(0)}%`, color: 'text-success' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="metric-card">
-              <div className={`metric-value ${color}`}>{value}</div>
-              <div className="metric-label">{label}</div>
-            </div>
-          ))}
-        </div>
+        <>
+          <p className="text-xs text-slate-400 -mt-2">ISOT Fake News Dataset — training statistics</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: 'Training Articles', value: summary.total_predictions.toLocaleString(), color: 'text-primary' },
+              { label: 'Fake Articles',     value: summary.fake_count.toLocaleString(),        color: 'text-danger'  },
+              { label: 'Fake Rate',         value: `${summary.fake_percentage}%`,              color: 'text-warning' },
+              { label: 'Model Accuracy',    value: `${(summary.avg_confidence*100).toFixed(1)}%`, color: 'text-success' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="metric-card">
+                <div className={`metric-value ${color}`}>{value}</div>
+                <div className="metric-label">{label}</div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
