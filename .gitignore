@@ -38,3 +38,4 @@ datasets/*.json
 # Logs
 *.log
 logs/
+.vercel
