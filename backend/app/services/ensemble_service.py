@@ -4,9 +4,35 @@ Combines: Logistic Regression, XGBoost, BiLSTM, BERT
 Weights: 0.20, 0.20, 0.25, 0.35
 """
 
+import re
+import string
 import numpy as np
 from typing import Dict, Any, Optional, Tuple
 from loguru import logger
+
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+for _pkg in ["punkt", "punkt_tab", "stopwords", "wordnet"]:
+    try:
+        nltk.download(_pkg, quiet=True)
+    except Exception:
+        pass
+
+_STOP = set(stopwords.words("english"))
+_LEM  = WordNetLemmatizer()
+
+
+def _preprocess(text: str) -> str:
+    """Matches exactly the preprocessing used during ISOT training."""
+    text = text.lower()
+    text = re.sub(r"http\S+|www\.\S+", " ", text)
+    text = text.translate(str.maketrans("", "", string.punctuation))
+    tokens = word_tokenize(text)
+    tokens = [_LEM.lemmatize(t) for t in tokens if t not in _STOP and len(t) > 1]
+    return " ".join(tokens)
 
 
 ENSEMBLE_WEIGHTS = {
@@ -86,8 +112,7 @@ class EnsembleService:
         if self.loader.tfidf_vectorizer is None or self.loader.logistic_model is None:
             return self._heuristic_score(text)
         try:
-            from app.services.preprocessing_service import TextPreprocessor
-            cleaned = TextPreprocessor.full_pipeline(text)
+            cleaned = _preprocess(text)
             X = self.loader.tfidf_vectorizer.transform([cleaned])
             prob = self.loader.logistic_model.predict_proba(X)[0]
             # LabelEncoder sorts alphabetically: FAKE=0, REAL=1 → prob[0] = P(FAKE)
@@ -101,8 +126,7 @@ class EnsembleService:
         if self.loader.xgboost_model is None:
             return None
         try:
-            from app.services.preprocessing_service import TextPreprocessor
-            cleaned = TextPreprocessor.full_pipeline(text)
+            cleaned = _preprocess(text)
             if self.loader.tfidf_vectorizer:
                 X = self.loader.tfidf_vectorizer.transform([cleaned])
                 prob = self.loader.xgboost_model.predict_proba(X)[0]
