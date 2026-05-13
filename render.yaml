@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: truthlens-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements-deploy.txt && python -m nltk.downloader punkt stopwords wordnet averaged_perceptron_tagger punkt_tab
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: https://fake-news-detector-lyart-eight.vercel.app,http://localhost:5173
+      - key: PYTHON_VERSION
+        value: 3.11.0
