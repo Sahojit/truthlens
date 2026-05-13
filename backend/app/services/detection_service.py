@@ -3,6 +3,7 @@ Main Detection Orchestrator
 Coordinates all sub-services and returns a unified prediction result.
 """
 
+import asyncio
 import time
 import uuid
 from typing import Optional
@@ -49,15 +50,27 @@ class DetectionService:
         pid = str(uuid.uuid4())
         logger.info(f"[{pid}] Starting prediction…")
 
-        # ── Run all services ──────────────────────────────────
-        ensemble_result   = self.ensemble.predict(headline, article)
-        semantic_result   = self.semantic.analyze(headline, article)
-        linguistic_result = self.linguistic.extract_all(headline, article)
-        emotion_result    = self.emotion.analyze(f"{headline} {article}")
-        cred_result       = self.credibility.score(source_url)
-        ai_result         = self.ai_detector.analyze(article)
-        graph_result      = self.graph.build_entity_graph(headline, article)
-        explain_result    = self.explainer.shap_explain(f"{headline} {article}")
+        # ── Run all independent services in parallel ──────────
+        loop = asyncio.get_event_loop()
+        (
+            ensemble_result,
+            semantic_result,
+            linguistic_result,
+            emotion_result,
+            cred_result,
+            ai_result,
+            graph_result,
+            explain_result,
+        ) = await asyncio.gather(
+            loop.run_in_executor(None, self.ensemble.predict, headline, article),
+            loop.run_in_executor(None, self.semantic.analyze, headline, article),
+            loop.run_in_executor(None, self.linguistic.extract_all, headline, article),
+            loop.run_in_executor(None, self.emotion.analyze, f"{headline} {article}"),
+            loop.run_in_executor(None, self.credibility.score, source_url),
+            loop.run_in_executor(None, self.ai_detector.analyze, article),
+            loop.run_in_executor(None, self.graph.build_entity_graph, headline, article),
+            loop.run_in_executor(None, self.explainer.shap_explain, f"{headline} {article}"),
+        )
 
         # ── Highlighted text ──────────────────────────────────
         highlighted = self.explainer.highlight_text(
