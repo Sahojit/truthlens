@@ -16,14 +16,19 @@ db_instance = Database()
 
 
 async def connect_db():
-    uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+    uri = os.getenv("MONGODB_URI", "")
     db_name = os.getenv("DATABASE_NAME", "fakenews")
+    if not uri:
+        logger.warning("MONGODB_URI not set — running without database (predictions work, history disabled).")
+        return
     logger.info(f"Connecting to MongoDB: {db_name}")
-    db_instance.client = AsyncIOMotorClient(uri)
-    db_instance.db = db_instance.client[db_name]
-    # Verify connection
-    await db_instance.client.admin.command("ping")
-    logger.info("MongoDB connected successfully.")
+    try:
+        db_instance.client = AsyncIOMotorClient(uri, serverSelectionTimeoutMS=5000)
+        db_instance.db = db_instance.client[db_name]
+        await db_instance.client.admin.command("ping")
+        logger.info("MongoDB connected successfully.")
+    except Exception as e:
+        logger.warning(f"MongoDB connection failed: {e} — running without database.")
 
 
 async def disconnect_db():
